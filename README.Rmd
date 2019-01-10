@@ -1,0 +1,33 @@
+---
+output:
+  github_document:
+    toc: false
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Avoiding Loops
+An introductory tutotrial on possible means to avoid loops altogether in **R**
+
+This tutorial introduces you some exciting alternatives to classic loops in R. While classic `for()` and `while()` loops are quite faster now in **R**, they still suffer considerable time lag when compared to loop structures in other high end languages (**C++** for example). They actually happen to most of the time not be the best option when tasks are to be repeated on large datasets. This is due to no fault of their own but the fact that **R** isn't a vectorized language.  The tutorial adopts a hands-on approach to demonstrate the offerings made available via existing functions (**apply**, **sapply()**, **lapply()**, **tapply()** and **mclapply**) and packages (**purrr**, **repurrrsive** and **futures**). The tutorial ends with an introduction to parallel programming and some packages that can help achieve this essential modern day computing technique in **R**.
+
+##  Installation of Nedded Packages
+
+```{r}
+#install.packages(tidyverse)
+#install.packages(repurrsive)
+```
+
+## R Session Info
+
+```{r}
+sessionInfo()
+```
+
+##  Useful links
+
+[![Travis-CI Build Status](https://github.com/jennybc/repurrrsive)](https://github.com/jennybc/repurrrsive)
+
+[![Travis-CI Build Status](https://purrr.tidyverse.org/)](https://purrr.tidyverse.org/)
