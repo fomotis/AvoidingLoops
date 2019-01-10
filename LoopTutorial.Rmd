@@ -1,0 +1,33 @@
+---
+title: "Alternatives to Classic Loops in R"
+author: "Olusoji Oluwafemi Daniel"
+date: "9 January 2019"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Some Basics
+
+- Repeating a process is part of our daily life and sciences isn't left out of it
+- 
+
+## The Apply set of Functions
+
+
+
+## Tidyverse Offering (Purrr Package)
+
+
+## A Data Reading Example
+
+
+
+## A Model Fitting Example
+
+
+
