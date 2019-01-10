@@ -1,5 +1,5 @@
 ---
-title: "Alternatives to Classic Loops in R"
+title: "Alternatives to Classic Loop Structures in R"
 author: "Olusoji Oluwafemi Daniel"
 date: "9 January 2019"
 output:
@@ -13,14 +13,22 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Some Basics
 
-- Repeating a process is part of our daily life and sciences isn't left out of it
+- Repeating a process/task is part of our daily life and sciences isn't left out of this.
 - 
 
 ## The Apply set of Functions
 
 
+## Tidyverse Offerings (Purrr Package \& Repurrsive Package)
 
-## Tidyverse Offering (Purrr Package)
+
+## Introduction to Parallel Programming in R
+
+
+## An Hello World Example
+
+
+##  Just How do they all Fare?
 
 
 ## A Data Reading Example

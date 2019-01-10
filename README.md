@@ -5,18 +5,18 @@ An introductory tutotrial on possible means to avoid loops altogether in
 **R**
 
 This tutorial introduces you some exciting alternatives to classic loops
-in R. While classic `for()` and `while()` loops are quite faster now in
-**R**, they still suffer considerable time lag when compared to loop
+in **R**. While classic `for()` and `while()` loops are quite faster now
+in **R**, they still suffer considerable time lag when compared to loop
 structures in other high end languages (**C++** for example). They
-actually happen to most of the time not be the best option when tasks
-are to be repeated on large datasets. This is due to no fault of their
-own but the fact that **R** isn’t a vectorized language. The tutorial
-adopts a hands-on approach to demonstrate the offerings made available
-via existing functions (**apply**, **sapply()**, **lapply()**,
-**tapply()** and **mclapply**) and packages (**purrr**, **repurrrsive**
-and **futures**). The tutorial ends with an introduction to parallel
-programming and some packages that can help achieve this essential
-modern day computing technique in **R**.
+actually happen to most of the time not be the best option when a task
+is to be repeated several times on a large number of datasets. This is
+due to no fault of their own but the fact that **R** isn’t a vectorized
+language. The tutorial adopts a hands-on approach to demonstrate the
+offerings made available via existing functions (**apply()**,
+**sapply()**, **lapply()**, **tapply()** and **mclapply**) and packages
+(**purrr**, **repurrrsive** and **futures**). The tutorial ends with an
+introduction to parallel programming and some packages that can help
+achieve this essential modern day computing technique in **R**.
 
 ## Installation of Nedded Packages
 
@@ -52,8 +52,15 @@ sessionInfo()
 #> [13] evaluate_0.12
 ```
 
+## Contributors
+
+  - Owokotomo Olajumoke Evangelina
+  - Sengupta Rudravdev
+
 ## Useful links
 
 <https://github.com/jennybc/repurrrsive>
 
 <https://purrr.tidyverse.org/>
+
+<https://r4ds.had.co.nz/>
