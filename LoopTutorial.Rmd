@@ -8,7 +8,8 @@ output:
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, cache = TRUE,
+                      collapse = TRUE, comment = ">")
 library(readxl)
 library(tidyverse)
 ```
@@ -36,62 +37,75 @@ library(tidyverse)
 - `?purrr::map()` gives you the relating help pages.
 
 ## An Hello World Example
-- Let's start with a toy example (Bootstrapping and Determinants)
+- Let's start with a toy example 
+- Bootstrapping and Determinants
 ```{r}
+#bootstrap function
 boot_func <- function(dat) {
   # sample from data
   sample(dat, length(dat), replace = T)
   # mean and standard deviation of dat
-  return(c(mean(dat), sd(dat)))
+  return(mean(dat))
 }
 sdata <- rnorm(80000, 0.5, 1.5)
-
+# 3 X 3 matrices from uniform distribution
 mdata <- vector("list", 80000)
 mdata<- lapply(mdata, function(x) {
   matrix(runif(15, 0, 1), nrow = 3, ncol = 3)
 })
 ```
+- To be used `for`, `sapply`, `purrr::rerun()` \&  `purrr::map()`
 
-## Hello World Example Cont: (Using `for()` loop)
-
-```{r forloop}
-#time for sdata
-system.time(for(i in 1:1000) {
+<font size="3">
+```{r forloop, echo = FALSE}
+Results <- lapply(1:10, function(k){
+  #for loop
+  ttfor_sdata <- system.time(for(i in 1:1000) {
+  boot_func(dat = sdata) })[[2]]
+  ttfor_mdata <- system.time(
+    for(i in 1:length(mdata)) {
+    det(mdata[[i]]) })[[2]]
+  #sapply
+  ttsa_sdata <- system.time(
+    sapply(1:1000, function(i) {
   boot_func(dat = sdata)
-})
+  }))[[2]]
+ ttsa_mdata <- system.time(
+   sapply(mdata, det))[[2]]
+ #purrr
+  ttpu_sdata <- system.time(
+    purrr::rerun(1000, boot_func(dat = 
+                       sdata)))[[2]]
+  ttpu_mdata <- system.time(purrr::map(mdata, 
+                            det))[[2]]
+  result <- rbind(data.frame(FOR = ttfor_sdata, 
+                  SA = ttsa_sdata, 
+                  PUR = ttpu_sdata, 
+                  Data_Type = "sdata"), 
+        data.frame(FOR = ttfor_mdata, 
+                   SA = ttsa_mdata, 
+                   PUR = ttpu_mdata, 
+                   Data_Type = "mdata"))
+  return(result)
+}) %>% do.call(rbind.data.frame, .)
 
-#time for mdata
-system.time(for(i in 1:length(mdata)) {
-  det(mdata[[i]])
-})
+```
+</font>
+
+## How They fared
+
+```{r plot, echo=FALSE}
+Results %>% gather(key = "Function_Type", value = "Time", -Data_Type) %>% 
+  group_by(Data_Type, Function_Type) %>% 
+  summarise(Ave_Time = mean(Time), sd_Time = sd(Time)) %>% 
+  ggplot(aes(x = Function_Type, y = Ave_Time)) + geom_point() + 
+  geom_errorbar(aes(ymin = Ave_Time - sd_Time, ymax = Ave_Time + sd_Time), width = 0.2,
+                     position = position_dodge(0.05), size = 1) + theme_bw() + 
+  facet_grid(.~Data_Type)
 
 ```
 
-## Hello World Example Cont: (Using `sapply()`)
-
-```{r sapply}
-#time for sdata
-system.time(sapply(1:1000, function(i) {
-  boot_func(dat = sdata)
-  }))
-#time for mdata
-system.time(sapply(mdata, det))
-
-```
-
-## Hello World Example Cont: (Using `purrr::rerun()`)
-
-```{r}
-#time for sdata
-system.time(purrr::rerun(1000, boot_func(dat = sdata)
-))
-#time for mdata
-system.time(purrr::map(mdata, det))
-```
-
-## A Data Reading Example
-
-
+- Considerably less time for the determinants, why?
 
 ## A Model Fitting Example
 
@@ -159,9 +173,16 @@ system.time(lapply(bychick$data, model_func))
 system.time(map(bychick$data, model_func))
 ```
 
+## Why Use these Alternatives?
+
+- Cleaner and more readable codes
+- Cleaner environment
+- Dedicated outputs
+
 ## Still to Come
 
 - Introduction to Parallel Programming in R
-
+- Tidyverse, A language within a Language
+- Check [https://github.com/fomotis/AvoidingLoops](https://github.com/fomotis/AvoidingLoops) for updates on this tutorial and associated files
 
 
