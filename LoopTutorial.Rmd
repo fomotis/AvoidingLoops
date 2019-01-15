@@ -7,35 +7,161 @@ output:
   ioslides_presentation: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(readxl)
+library(tidyverse)
 ```
 
 ## Some Basics
 
 - Repeating a process/task is part of our daily life and sciences isn't left out of this.
-- 
+- Repeating a process in programming languages is referred to as looping, which forms one of the basic thing to learn when learning a new language
+- The standard function for repeatition in programming are; `repeat`, `do`, `for` and `while`
+- In `R`, this classic loop structures are not as fast as they are in other High Level Languages, hence the need for alternatives.
+- However, they are not as slow as people make them seem.
 
 ## The Apply set of Functions
 
+- The `Apply` set of functions are the first set of alternatives to loops in `R`
+- There are about 4 to 5 of then (including a multicore version, `mclapply` in the *parallel package*)
+- `?apply`, `?lapply` and `?sapply` opens up the help pages in `R`
+- `apply(x, MARGIN, FUN, ...)` allows you **apply** a function over the rows **(MARGIN = 1)** or columns **(MARGIN = 2)** of a matrix or dataframe
+- `sapply(x, FUN, ...)` and `lapply(x, FUN, ...)` allows you **apply** a function over a list, matix or dataframe as well. `lapply()` always returns a list, `sapply()` tries to simplify the results.
 
-## Tidyverse Offerings (Purrr Package \& Repurrsive Package)
-
-
-## Introduction to Parallel Programming in R
-
+## Tidyverse Offering (purrr Package)
+- *tidyverse* is an ecosystem of packages dedicated to making data analysis faster [https://tidyverse.org/](https://tidyverse.org/)
+- It thrives on a set of data structures, grammar and philosophy aimed at making data analysis faster and reproducible.
+- *purrr*'s `map(.x, .f, ...)`, its variants and `walk(.x, .f, ...)` function  makes it possible to apply a function that allows more than one input to a list, array or dataframe.
+- `?purrr::map()` gives you the relating help pages.
 
 ## An Hello World Example
+- Let's start with a toy example (Bootstrapping and Determinants)
+```{r}
+boot_func <- function(dat) {
+  # sample from data
+  sample(dat, length(dat), replace = T)
+  # mean and standard deviation of dat
+  return(c(mean(dat), sd(dat)))
+}
+sdata <- rnorm(80000, 0.5, 1.5)
 
+mdata <- vector("list", 80000)
+mdata<- lapply(mdata, function(x) {
+  matrix(runif(15, 0, 1), nrow = 3, ncol = 3)
+})
+```
 
-##  Just How do they all Fare?
+## Hello World Example Cont: (Using `for()` loop)
 
+```{r forloop}
+#time for sdata
+system.time(for(i in 1:1000) {
+  boot_func(dat = sdata)
+})
+
+#time for mdata
+system.time(for(i in 1:length(mdata)) {
+  det(mdata[[i]])
+})
+
+```
+
+## Hello World Example Cont: (Using `sapply()`)
+
+```{r sapply}
+#time for sdata
+system.time(sapply(1:1000, function(i) {
+  boot_func(dat = sdata)
+  }))
+#time for mdata
+system.time(sapply(mdata, det))
+
+```
+
+## Hello World Example Cont: (Using `purrr::rerun()`)
+
+```{r}
+#time for sdata
+system.time(purrr::rerun(1000, boot_func(dat = sdata)
+))
+#time for mdata
+system.time(purrr::map(mdata, det))
+```
 
 ## A Data Reading Example
 
 
 
 ## A Model Fitting Example
+
+```{r modelfit, echo=FALSE}
+chickendata <- read_excel("Data/PhMatt.xls",sheet="PhMatt")
+#Tags that occur more than once
+doubles <- chickendata %>% filter(TAGNO %in% names(which(table(chickendata$TAGNO)>1)))
+#for( i in 1:54){
+#  print(list(i,which(chickendata$TAGNO == doubles$TAGNO[[i]])))
+#}
+#which(chickendata$TAGNO == "A74")
+chickendata2 <- chickendata %>% slice(-c(715:(715+20),3823:(3823+20),6028:(6028+20),6049:(6049+20),
+                                       3907:(3907+20),3928:(3928+20),6133:(6133+20),3970:(3970+20),
+                                       3991:(3991+20),4012:(4012+20),4033:(4033+20),6238:(6238+20),
+                                       4075:(4075+20),6280:(6280+20),4117:(4117+20),4138:(4138+20),
+                                       6343:(6343+20),4180:(4180+20),4201:(4201+20),4222:(4222+20),
+                                       6427:(6427+20),6448:(6448+20),6469:(6469+20),4306:(4306+20),
+                                       6511:(6511+20),6532:(6532+20),3886:(3886+20)
+                                       ) )
+
+chickendata2 <- chickendata2 %>% mutate(TAGNO=rep(unique(chickendata2$TAGNO)[!is.na(unique(chickendata2$TAGNO))]
+                                                ,each=21))
+
+###creating another group where CHICKG==11,22,33,44 = unibreed and, others are crossbreed
+chickendata2 <- chickendata2 %>% mutate(Group=ifelse(chickendata2$CHICKG %in% c(11,22,33,44),
+                                                     "High Breed",
+                                                     "Cross Breed") )
+#make a list
+bychick <- chickendata2 %>% group_by(TAGNO) %>% nest()
+```
+
+- The chicken dataset contains birth information of `r length(unique(chickendata2$TAGNO))` chickens obtained via in-breeding or cross-bredding.
+- Let's try to fit a regression model to relate the Age and Birth Weight of the 628 chickens.
+
+```{r}
+model_func <- function(ddata) {
+  if( length(which(!is.na(ddata$BW))) >= 3 ) {
+   model  <- lm(BW ~ AGE, data = ddata)
+   slope <- coef(model)[2]
+  } else {
+    slope <- NA
+  }
+  return(slope)
+}
+```
+
+
+## Using `for() loop`
+```{r}
+slopes <- c()
+system.time( for(i in 1:length(bychick$data)) {
+  result <- model_func(ddata = bychick$data[[i]])
+  slopes <- c(slopes, result)
+})
+```
+
+## Using `lapply()`
+```{r}
+system.time(lapply(bychick$data, model_func))
+```
+
+## Using `purrr::map()`
+
+```{r}
+system.time(map(bychick$data, model_func))
+```
+
+## Still to Come
+
+- Introduction to Parallel Programming in R
 
 
 
